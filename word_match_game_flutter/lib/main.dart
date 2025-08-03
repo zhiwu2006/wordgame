@@ -420,36 +420,85 @@ void main() {
   );
 }
 
+// ------------------- Themes -------------------
+class AppThemes {
+  static final ThemeData lightTheme = ThemeData(
+    brightness: Brightness.light,
+    scaffoldBackgroundColor: Colors.grey[200],
+    cardColor: Colors.white,
+    primaryColor: Colors.deepPurple,
+    colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+    textTheme: GoogleFonts.nunitoTextTheme(ThemeData.light().textTheme).apply(
+      bodyColor: Colors.black87,
+      displayColor: Colors.black87,
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.deepPurple,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        textStyle: GoogleFonts.nunito(fontWeight: FontWeight.bold, fontSize: 16),
+      ),
+    ),
+    iconButtonTheme: IconButtonThemeData(
+      style: IconButton.styleFrom(
+        foregroundColor: Colors.black87,
+      ),
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      titleTextStyle: GoogleFonts.nunito(fontWeight: FontWeight.bold, fontSize: 24, color: Colors.black87),
+      iconTheme: IconThemeData(color: Colors.black87),
+    ),
+  );
+
+  static final ThemeData darkTheme = ThemeData(
+    brightness: Brightness.dark,
+    scaffoldBackgroundColor: const Color(0xFF1A1A2E),
+    cardColor: const Color(0xFF2A2A4E),
+    primaryColor: const Color(0xFFE94560),
+    colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFE94560), brightness: Brightness.dark),
+    textTheme: GoogleFonts.nunitoTextTheme(ThemeData.dark().textTheme).apply(
+      bodyColor: Colors.white,
+      displayColor: Colors.white,
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFFE94560),
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        textStyle: GoogleFonts.nunito(fontWeight: FontWeight.bold, fontSize: 16),
+      ),
+    ),
+    iconButtonTheme: IconButtonThemeData(
+      style: IconButton.styleFrom(
+        foregroundColor: Colors.white,
+      ),
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      titleTextStyle: GoogleFonts.nunito(fontWeight: FontWeight.bold, fontSize: 24, color: Colors.white),
+      iconTheme: IconThemeData(color: Colors.white),
+    ),
+  );
+}
+
 class WordMatchGame extends StatelessWidget {
   const WordMatchGame({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = GoogleFonts.nunitoTextTheme(Theme.of(context).textTheme);
+    final settings = context.watch<SettingsProvider>();
 
     return MaterialApp(
       title: 'Word Match Game',
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF1A1A2E),
-        cardColor: const Color(0xFF2A2A4E),
-        primaryColor: const Color(0xFFE94560),
-        textTheme: textTheme.apply(bodyColor: Colors.white, displayColor: Colors.white),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFE94560),
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            textStyle: GoogleFonts.nunito(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-        ),
-        iconButtonTheme: IconButtonThemeData(
-          style: IconButton.styleFrom(
-            foregroundColor: Colors.white,
-          )
-        )
-      ),
+      theme: AppThemes.lightTheme,
+      darkTheme: AppThemes.darkTheme,
+      themeMode: settings.themeMode,
       home: const GameScreen(),
     );
   }
@@ -464,15 +513,7 @@ class GameScreen extends StatelessWidget {
     final isPlaying = game.gameState == GameState.playing;
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF1A1A2E), Color(0xFF16213E)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: SafeArea(
+      body: SafeArea(
           child: Column(
             children: [
               if (!isPlaying)
@@ -516,7 +557,6 @@ class GameScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
       floatingActionButton: isPlaying
           ? FloatingActionButton(
               onPressed: game.pauseGame,
@@ -615,8 +655,8 @@ class StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Card(
-      color: const Color(0xFF2A2A4E).withOpacity(0.8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -624,8 +664,8 @@ class StatCard extends StatelessWidget {
           children: [
             Icon(icon, color: color, size: 32),
             const SizedBox(height: 8),
-            Text(value, style: GoogleFonts.nunito(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)),
-            Text(label, style: GoogleFonts.nunito(fontSize: 14, color: Colors.white70)),
+            Text(value, style: GoogleFonts.nunito(fontSize: 28, fontWeight: FontWeight.bold, color: theme.textTheme.bodyLarge?.color)),
+            Text(label, style: GoogleFonts.nunito(fontSize: 14, color: theme.textTheme.bodyMedium?.color)),
           ],
         ),
       ),
@@ -737,23 +777,44 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
     final game = context.watch<GameController>();
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Settings', style: GoogleFonts.nunito(fontWeight: FontWeight.bold)),
+        title: Text('Settings', style: theme.appBarTheme.titleTextStyle),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        iconTheme: theme.appBarTheme.iconTheme,
       ),
-      backgroundColor: const Color(0xFF1A1A2E),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          Text('Game Settings', style: GoogleFonts.nunito(fontSize: 20, fontWeight: FontWeight.bold, color: const Color(0xFFE94560))),
+          Text('Appearance', style: GoogleFonts.nunito(fontSize: 20, fontWeight: FontWeight.bold, color: theme.primaryColor)),
+          const SizedBox(height: 16),
+          SegmentedButton<ThemeMode>(
+            segments: const [
+              ButtonSegment(value: ThemeMode.light, label: Text('Light'), icon: Icon(Icons.wb_sunny_rounded)),
+              ButtonSegment(value: ThemeMode.dark, label: Text('Dark'), icon: Icon(Icons.nightlight_round)),
+              ButtonSegment(value: ThemeMode.system, label: Text('System'), icon: Icon(Icons.brightness_auto_rounded)),
+            ],
+            selected: {settings.themeMode},
+            onSelectionChanged: (newSelection) {
+              settings.setThemeMode(newSelection.first);
+            },
+            style: SegmentedButton.styleFrom(
+              backgroundColor: theme.cardColor,
+              foregroundColor: theme.textTheme.bodyLarge?.color,
+              selectedBackgroundColor: theme.primaryColor,
+              selectedForegroundColor: theme.colorScheme.onPrimary,
+            ),
+          ),
+          const Divider(height: 48, color: Colors.white24),
+          Text('Game Settings', style: GoogleFonts.nunito(fontSize: 20, fontWeight: FontWeight.bold, color: theme.primaryColor)),
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             decoration: BoxDecoration(
-              color: const Color(0xFF2A2A4E),
+              color: theme.cardColor,
               borderRadius: BorderRadius.circular(12),
             ),
             child: DropdownButton<String>(
@@ -766,11 +827,11 @@ class SettingsScreen extends StatelessWidget {
               items: game.wordLists.keys.map<DropdownMenuItem<String>>((String key) {
                 return DropdownMenuItem<String>(
                   value: key,
-                  child: Text(key, style: GoogleFonts.nunito(color: Colors.white, fontWeight: FontWeight.w600)),
+                  child: Text(key, style: GoogleFonts.nunito(fontWeight: FontWeight.w600)),
                 );
               }).toList(),
-              dropdownColor: const Color(0xFF2A2A4E),
-              icon: const Icon(Icons.arrow_drop_down_rounded, color: Colors.white),
+              dropdownColor: theme.cardColor,
+              icon: const Icon(Icons.arrow_drop_down_rounded),
               isExpanded: true,
               underline: const SizedBox(),
             ),
@@ -792,10 +853,10 @@ class SettingsScreen extends StatelessWidget {
                       game.setGameMode(mode);
                     }
                   },
-                  backgroundColor: const Color(0xFF2A2A4E),
-                  selectedColor: const Color(0xFFE94560),
+                  backgroundColor: theme.cardColor,
+                  selectedColor: theme.primaryColor,
                   labelStyle: GoogleFonts.nunito(
-                    color: Colors.white,
+                    color: isSelected ? theme.colorScheme.onPrimary : theme.textTheme.bodyLarge?.color,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -819,35 +880,44 @@ class SettingsScreen extends StatelessWidget {
                       game.setDifficulty(difficulty);
                     }
                   },
-                  backgroundColor: const Color(0xFF2A2A4E),
-                  selectedColor: const Color(0xFFE94560),
+                  backgroundColor: theme.cardColor,
+                  selectedColor: theme.primaryColor,
                   labelStyle: GoogleFonts.nunito(
-                    color: Colors.white,
+                    color: isSelected ? theme.colorScheme.onPrimary : theme.textTheme.bodyLarge?.color,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               );
             }).toList(),
           ),
-          const Divider(height: 48, color: Colors.white24),
-          Text('Audio & Feedback', style: GoogleFonts.nunito(fontSize: 20, fontWeight: FontWeight.bold, color: const Color(0xFFE94560))),
+          const Divider(height: 48, color: Colors.grey),
+          Text('Audio & Feedback', style: GoogleFonts.nunito(fontSize: 20, fontWeight: FontWeight.bold, color: theme.primaryColor)),
+          const SizedBox(height: 8),
           SwitchListTile(
             title: Text('Sound Effects', style: GoogleFonts.nunito(fontWeight: FontWeight.w600)),
             value: settings.soundEnabled,
             onChanged: (value) => settings.setSoundEnabled(value),
-            activeColor: const Color(0xFFE94560),
+            activeColor: theme.primaryColor,
+            tileColor: theme.cardColor,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
+          const SizedBox(height: 8),
           SwitchListTile(
             title: Text('Vibration', style: GoogleFonts.nunito(fontWeight: FontWeight.w600)),
             value: settings.vibrationEnabled,
             onChanged: (value) => settings.setVibrationEnabled(value),
-            activeColor: const Color(0xFFE94560),
+            activeColor: theme.primaryColor,
+            tileColor: theme.cardColor,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
+          const SizedBox(height: 8),
           SwitchListTile(
             title: Text('Word Pronunciation (TTS)', style: GoogleFonts.nunito(fontWeight: FontWeight.w600)),
             value: settings.ttsEnabled,
             onChanged: (value) => settings.setTtsEnabled(value),
-            activeColor: const Color(0xFFE94560),
+            activeColor: theme.primaryColor,
+            tileColor: theme.cardColor,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ],
       ),
@@ -858,13 +928,14 @@ class SettingsScreen extends StatelessWidget {
 class UnfamiliarWordsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Unfamiliar Words', style: GoogleFonts.nunito(fontWeight: FontWeight.bold)),
+        title: Text('Unfamiliar Words', style: theme.appBarTheme.titleTextStyle),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        iconTheme: theme.appBarTheme.iconTheme,
       ),
-      backgroundColor: const Color(0xFF1A1A2E),
       body: Consumer<GameController>(
         builder: (context, game, child) {
           if (game.unfamiliarWords.isEmpty) {
@@ -872,11 +943,11 @@ class UnfamiliarWordsScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.sentiment_satisfied_alt_rounded, size: 80, color: Colors.white24),
+                  Icon(Icons.sentiment_satisfied_alt_rounded, size: 80, color: Colors.grey),
                   const SizedBox(height: 16),
                   Text(
                     'No unfamiliar words yet. Keep playing!',
-                    style: GoogleFonts.nunito(fontSize: 18, color: Colors.white54),
+                    style: GoogleFonts.nunito(fontSize: 18, color: Colors.grey),
                   ),
                 ],
               ),
@@ -889,13 +960,12 @@ class UnfamiliarWordsScreen extends StatelessWidget {
               final wordPair = game.unfamiliarWords[index];
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                color: const Color(0xFF2A2A4E),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 child: ListTile(
-                  title: Text(wordPair.english, style: GoogleFonts.nunito(color: Colors.white, fontWeight: FontWeight.bold)),
-                  subtitle: Text(wordPair.chinese, style: GoogleFonts.nunito(color: Colors.white70)),
+                  title: Text(wordPair.english, style: GoogleFonts.nunito(fontWeight: FontWeight.bold)),
+                  subtitle: Text(wordPair.chinese),
                   trailing: IconButton(
-                    icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFFE94560)),
+                    icon: Icon(Icons.delete_outline_rounded, color: theme.colorScheme.error),
                     onPressed: () {
                       game.removeUnfamiliarWord(wordPair);
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -1018,13 +1088,14 @@ class GameGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final game = context.watch<GameController>();
+    final theme = Theme.of(context);
 
     if (game.gameState == GameState.paused) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.pause_circle_filled_rounded, size: 80, color: Colors.white24),
+            Icon(Icons.pause_circle_filled_rounded, size: 80, color: theme.primaryColor.withOpacity(0.5)),
             const SizedBox(height: 20),
             ElevatedButton.icon(
               icon: const Icon(Icons.play_arrow_rounded),
@@ -1061,10 +1132,10 @@ class GameFinishedView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final game = context.watch<GameController>();
+    final theme = Theme.of(context);
 
     return Center(
       child: Card(
-        color: const Color(0xFF2A2A4E).withOpacity(0.8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         elevation: 10,
         child: Padding(
@@ -1079,9 +1150,9 @@ class GameFinishedView extends StatelessWidget {
                   child: Text('New High Score!', style: GoogleFonts.nunito(fontSize: 22, color: Colors.greenAccent, fontWeight: FontWeight.bold)),
                 ),
               const SizedBox(height: 24),
-              Text('Your Score: ${game.score}', style: GoogleFonts.nunito(fontSize: 22, color: Colors.white)),
+              Text('Your Score: ${game.score}', style: GoogleFonts.nunito(fontSize: 22)),
               if (game.gameMode == GameMode.classic)
-                Text('Time: ${game.timerText}', style: GoogleFonts.nunito(fontSize: 18, color: Colors.white70)),
+                Text('Time: ${game.timerText}', style: GoogleFonts.nunito(fontSize: 18, color: theme.textTheme.bodyMedium?.color)),
               const SizedBox(height: 32),
               ElevatedButton.icon(
                 icon: const Icon(Icons.replay_rounded),
@@ -1178,7 +1249,7 @@ class _GameCardWidgetState extends State<GameCardWidget> with TickerProviderStat
             decoration: BoxDecoration(
               color: _getCardColor(context, status),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: _getBorderColor(status), width: status == CardStatus.selected ? 3 : 1),
+              border: Border.all(color: _getBorderColor(context, status), width: status == CardStatus.selected ? 3 : 1),
               boxShadow: [
                 if (status == CardStatus.matched)
                   BoxShadow(
@@ -1202,7 +1273,6 @@ class _GameCardWidgetState extends State<GameCardWidget> with TickerProviderStat
                   style: GoogleFonts.nunito(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
                   ),
                 ),
               ),
@@ -1214,20 +1284,22 @@ class _GameCardWidgetState extends State<GameCardWidget> with TickerProviderStat
   }
 
   Color _getCardColor(BuildContext context, CardStatus status) {
+    final theme = Theme.of(context);
     switch (status) {
       case CardStatus.selected:
-        return const Color(0xFFE94560);
+        return theme.primaryColor;
       case CardStatus.mismatched:
-        return Colors.redAccent;
+        return theme.colorScheme.error;
       default:
-        return const Color(0xFF2A2A4E);
+        return theme.cardColor;
     }
   }
 
-  Color _getBorderColor(CardStatus status) {
+  Color _getBorderColor(BuildContext context, CardStatus status) {
+    final theme = Theme.of(context);
     if (status == CardStatus.selected) {
-      return Colors.white;
+      return theme.colorScheme.onPrimary;
     }
-    return const Color(0xFF0F3460);
+    return theme.colorScheme.secondary.withOpacity(0.5);
   }
 }

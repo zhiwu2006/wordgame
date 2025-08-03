@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:word_match_game_flutter/services/settings_service.dart';
 
 class SettingsProvider with ChangeNotifier {
@@ -7,10 +8,12 @@ class SettingsProvider with ChangeNotifier {
   bool _soundEnabled = true;
   bool _vibrationEnabled = true;
   bool _ttsEnabled = true;
+  ThemeMode _themeMode = ThemeMode.system;
 
   bool get soundEnabled => _soundEnabled;
   bool get vibrationEnabled => _vibrationEnabled;
   bool get ttsEnabled => _ttsEnabled;
+  ThemeMode get themeMode => _themeMode;
 
   SettingsProvider() {
     loadSettings();
@@ -20,6 +23,11 @@ class SettingsProvider with ChangeNotifier {
     _soundEnabled = await _settingsService.isSoundEnabled();
     _vibrationEnabled = await _settingsService.isVibrationEnabled();
     _ttsEnabled = await _settingsService.isTtsEnabled();
+    
+    final prefs = await SharedPreferences.getInstance();
+    final themeIndex = prefs.getInt('theme_mode') ?? ThemeMode.system.index;
+    _themeMode = ThemeMode.values[themeIndex];
+    
     notifyListeners();
   }
 
@@ -38,6 +46,13 @@ class SettingsProvider with ChangeNotifier {
   Future<void> setTtsEnabled(bool value) async {
     _ttsEnabled = value;
     await _settingsService.setTtsEnabled(value);
+    notifyListeners();
+  }
+
+  Future<void> setThemeMode(ThemeMode mode) async {
+    _themeMode = mode;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('theme_mode', mode.index);
     notifyListeners();
   }
 }
