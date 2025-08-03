@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
 import 'package:word_match_game_flutter/models/word_pair.dart';
@@ -400,6 +403,46 @@ class GameController with ChangeNotifier {
   void setCardStatus(int index, CardStatus status) {
     _cards[index].status = status;
     notifyListeners();
+  }
+
+  Future<String?> importWordList() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+
+      if (result == null || result.files.single.path == null) {
+        return "File selection cancelled.";
+      }
+
+      final file = File(result.files.single.path!);
+      final String fileContent = await file.readAsString();
+      final List<dynamic> jsonList = json.decode(fileContent);
+
+      if (jsonList.isEmpty) {
+        return "Error: The selected JSON file is empty.";
+      }
+
+      List<WordPair> wordPairs;
+      // Format validation
+      if (jsonList.first is List && jsonList.every((item) => item is List && item.length == 2)) {
+        wordPairs = jsonList.map((item) => WordPair(item[0].toString(), item[1].toString())).toList();
+      } else if (jsonList.first is Map && jsonList.every((item) => item is Map && item.containsKey('english') && item.containsKey('chinese'))) {
+        wordPairs = jsonList.map((item) => WordPair(item['english'], item['chinese'])).toList();
+      } else {
+        return "Error: Invalid JSON format. Please provide a list of [english, chinese] pairs or a list of {'english': ..., 'chinese': ...} objects.";
+      }
+
+      final String key = p.basenameWithoutExtension(file.path);
+      _wordLists[key] = wordPairs;
+      switchWordList(key);
+      notifyListeners();
+      return null; // Success
+    } catch (e) {
+      print("Error importing word list: $e");
+      return "An unexpected error occurred while importing the file.";
+    }
   }
 
   void restartGame() {
@@ -834,6 +877,26 @@ class SettingsScreen extends StatelessWidget {
               icon: const Icon(Icons.arrow_drop_down_rounded),
               isExpanded: true,
               underline: const SizedBox(),
+            ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.file_upload_rounded),
+            label: const Text('Import Word List'),
+            onPressed: () async {
+              final result = await game.importWordList();
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(result ?? 'Successfully imported and selected new word list!'),
+                    backgroundColor: result == null ? Colors.green : Colors.redAccent,
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: theme.colorScheme.secondary,
+              foregroundColor: theme.colorScheme.onSecondary,
             ),
           ),
           const SizedBox(height: 24),
