@@ -1,41 +1,35 @@
-# Word Match Game (Flutter)
+# 拼对儿 (Word Match Game)
 
 A feature-rich and engaging word matching memory game built with Flutter. This game is designed to help users learn and memorize English and Chinese words in a fun and interactive way.
 
 ## ✨ Features
 
-- **Dual Game Modes:**
-  - **Classic Mode:** Play at your own pace and try to clear the board with the fewest mistakes.
-  - **Time Attack Mode:** Race against the clock to match as many pairs as you can in 60 seconds.
-- **Multiple Difficulty Levels:**
-  - **Easy (8 pairs):** Perfect for a quick game or for beginners.
-  - **Normal (16 pairs):** A balanced challenge.
-  - **Hard (32 pairs):** A true test of your memory skills.
-- **Comprehensive Statistics:** Tracks your score, high score, match streak, and number of games played.
-- **"Unfamiliar Words" List:** Automatically saves words you struggle with, creating a personalized list for review.
-- **Customizable Experience:**
-  - Enable or disable sound effects.
-  - Toggle vibration for haptic feedback.
-  - Turn on/off Text-to-Speech (TTS) for word pronunciation.
-- **Multiple Word Lists:** Comes with several built-in word lists, and you can easily switch between them.
-- **Sleek & Modern UI:** A beautiful dark theme with custom fonts, smooth animations, and an engaging user experience.
+- **Dual Game Modes:** Classic and Time Attack.
+- **Multiple Difficulty Levels:** Easy, Normal, and Hard.
+- **Light & Dark Modes:** Choose your preferred theme or have it sync with your system.
+- **Custom Word Lists:** Import your own `.json` word lists to personalize your learning.
+- **Comprehensive Statistics:** Tracks score, high score, match streak, and games played.
+- **"Unfamiliar Words" List:** Automatically saves words you struggle with for later review.
+- **Audio & Haptic Feedback:** Sound effects, TTS word pronunciation, and vibration feedback are all customizable.
 
 ## 🚀 Getting Started
+
+This project is now focused on **Android only**.
 
 ### Prerequisites
 
 - Flutter SDK (version 3.8.1 or higher)
-- A code editor like VS Code or Android Studio
+- Android Studio or VS Code
 
 ### Installation
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/word-match-game.git
+    git clone https://github.com/zhiwu2006/wordgame.git
     ```
 2.  **Navigate to the project directory:**
     ```bash
-    cd word-match-game/word_match_game_flutter
+    cd wordgame/word_match_game_flutter
     ```
 3.  **Install dependencies:**
     ```bash
@@ -46,35 +40,36 @@ A feature-rich and engaging word matching memory game built with Flutter. This g
     flutter run
     ```
 
+## ✍️ Importing Custom Word Lists
+
+You can import your own word lists via the "Import Word List" button in the settings menu. The importer accepts `.json` files in two formats:
+
+**Format 1: Array of Arrays**
+```json
+[
+  ["apple", "苹果"],
+  ["banana", "香蕉"],
+  ["orange", "橙子"]
+]
+```
+
+**Format 2: Array of Objects**
+```json
+[
+  {"english": "apple", "chinese": "苹果"},
+  {"english": "banana", "chinese": "香蕉"},
+  {"english": "orange", "chinese": "橙子"}
+]
+```
+
 ## 🛠️ Technologies Used
 
 - **Framework:** [Flutter](https://flutter.dev/)
 - **State Management:** [provider](https://pub.dev/packages/provider)
+- **File Handling:** [file_picker](https://pub.dev/packages/file_picker)
 - **Persistent Storage:** [shared_preferences](https://pub.dev/packages/shared_preferences)
-- **Audio & Haptics:**
-  - [audioplayers](https://pub.dev/packages/audioplayers) for sound effects.
-  - [flutter_tts](https://pub.dev/packages/flutter_tts) for text-to-speech.
-  - [vibration](https://pub.dev/packages/vibration) for haptic feedback.
-- **UI & Styling:**
-  - [google_fonts](https://pub.dev/packages/google_fonts) for custom fonts.
-  - [lucide_icons](https://pub.dev/packages/lucide_icons) for icons.
-
-## 📂 Project Structure
-
-```
-lib/
-├── main.dart               # App entry point, UI, and game logic
-├── models/                 # Data models (e.g., WordPair)
-├── providers/              # State management providers (e.g., SettingsProvider)
-└── services/               # Services (e.g., SoundService, TTSService)
-assets/
-├── sounds/                 # Sound effect files
-└── *.json                  # Word list data
-```
-
-## Screenshots
-
-*(Coming Soon)*
+- **Audio & Haptics:** `audioplayers`, `flutter_tts`, `vibration`
+- **UI & Styling:** `google_fonts`, `lucide_icons`
 
 ---
 
